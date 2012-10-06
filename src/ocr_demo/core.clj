@@ -1,20 +1,19 @@
 
 (ns ocr-demo.core
-  (:use ocr-demo.util
-        ocr-demo.data))
+  (:use ocr-demo.data))
 
-(defn data-distance [digit-data data]
-  {:digit (:digit data)
-   :distance (euclidean-distance digit-data (:data data))})
+(defn euclidean-distance [x y]
+  (let [squares (map (comp #(* % %) -) x y)]
+    (Math/sqrt (reduce + 0 squares))))
 
-(defn to-score [[digit matches]]
-  [digit (count matches)])
+(defn data-distance [digit-data [digit data]]
+  [digit (euclidean-distance digit-data data)])
 
 (defn guess-digit [digit-data k]
   (->> (training-data)
        (map (partial data-distance digit-data))
-       (sort-by :distance)
+       (sort-by second)
        (take k)
-       (group-by :digit)
-       (map to-score)))
+       (map first)
+       (frequencies)))
 
